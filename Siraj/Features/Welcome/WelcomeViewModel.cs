@@ -52,7 +52,7 @@ internal sealed partial class WelcomeViewModel : HeaderViewModel
 
             Log.Information("Location resolved to {LocationName}", location.Name);
 
-            settingsService.Default = location;
+            settingsService.Notified = [..settingsService.Notified, location];
 
             WeakReferenceMessenger.Default.Send(new AddMessage(location));
         }

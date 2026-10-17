@@ -24,7 +24,7 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     public ObservableCollection<Prayer> Prayers { get; } = [];
 
     [ObservableProperty]
-    public partial bool IsDefault { get; set; }
+    public partial bool IsNotified { get; set; }
 
     [ObservableProperty]
     public partial string? Description { get; set; }
@@ -69,7 +69,7 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     {
         Log.Information("Initializing prayer times for {LocationName}", Location.Name);
 
-        IsDefault = settingsService.Default?.Equals(Location) ?? false;
+        IsNotified = settingsService.Notified.Any(location => location.Equals(Location));
 
         Prayers.Clear();
 
@@ -109,7 +109,7 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
             time = times[PrayerKind.Fajr].AddDays(1);
         }
 
-        if (IsDefault && Upcoming != kind && !string.IsNullOrWhiteSpace(Remaining))
+        if (IsNotified && Upcoming != kind && !string.IsNullOrWhiteSpace(Remaining))
         {
             Log.Information("Prayer time reached for {Prayer} at {LocationName}", Upcoming, Location.Name);
 
@@ -125,20 +125,19 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
         Remaining = (time - now).ToReadableString();
     }
 
-    partial void OnIsDefaultChanged(bool value)
+    partial void OnIsNotifiedChanged(bool value)
     {
+        var notified = settingsService.Notified.Where(location => !location.Equals(Location));
+
         if (value)
         {
-            Log.Information("Set {LocationName} as the default prayer location", Location.Name);
-            settingsService.Default = Location;
+            Log.Information("Enabled notifications for {LocationName}", Location.Name);
+            settingsService.Notified = [..notified, Location];
         }
         else
         {
-            if (settingsService.Default?.Equals(Location) is true)
-            {
-                Log.Information("Cleared {LocationName} as the default prayer location", Location.Name);
-                settingsService.Default = null;
-            }
+            Log.Information("Disabled notifications for {LocationName}", Location.Name);
+            settingsService.Notified = [..notified];
         }
     }
 }

@@ -77,7 +77,7 @@
                                           Height="36"
                                           Padding="0"
                                           HorizontalAlignment="Right"
-                                          IsChecked="{x:Bind ViewModel.IsDefault, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsChecked="{x:Bind ViewModel.IsNotified, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                           ToolTipService.ToolTip="Receive notifications for this location">
 
                                 <FontIcon FontSize="16"
