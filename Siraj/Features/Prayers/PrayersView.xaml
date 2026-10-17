@@ -9,6 +9,46 @@
 
     <Page.Resources>
         <prayers:UpcomingToRowConverter x:Key="UpcomingToRowConverter" />
+
+        <LinearGradientBrush x:Key="Fajr"
+                             StartPoint="0 0"
+                             EndPoint="0 1">
+
+            <GradientStop Offset="0" Color="#32FFEF78" />
+            <GradientStop Offset="1" Color="#00FFEF78" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="Dhuhr"
+                             StartPoint="0 0"
+                             EndPoint="0 1">
+
+            <GradientStop Offset="0" Color="#32FFD078" />
+            <GradientStop Offset="1" Color="#00FFD078" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="Asr"
+                             StartPoint="0 0"
+                             EndPoint="0 1">
+
+            <GradientStop Offset="0" Color="#32F5D290" />
+            <GradientStop Offset="1" Color="#00F5D290" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="Maghrib"
+                             StartPoint="0 0"
+                             EndPoint="0 1">
+
+            <GradientStop Offset="0" Color="#326673FF" />
+            <GradientStop Offset="1" Color="#006673FF" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="Isha"
+                             StartPoint="0 0"
+                             EndPoint="0 1">
+
+            <GradientStop Offset="0" Color="#325339FA" />
+            <GradientStop Offset="1" Color="#005339FA" />
+        </LinearGradientBrush>
     </Page.Resources>
 
     <Grid>
