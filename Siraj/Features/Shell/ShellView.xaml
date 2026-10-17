@@ -28,7 +28,7 @@
                                 IconSource="/Assets/Siraj/Siraj.ico"
                                 LeftClickCommand="{x:Bind viewModel.OpenCommand}"
                                 NoLeftClickDelay="True"
-                                ToolTipText="Siraj Preview">
+                                ToolTipText="Siraj">
 
             <notifyIcon:TaskbarIcon.ContextFlyout>
                 <MenuFlyout>
@@ -77,10 +77,10 @@
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Text="Siraj" />
 
-                <TextBlock VerticalAlignment="Center"
+                <!--<TextBlock VerticalAlignment="Center"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Style="{StaticResource CaptionTextBlockStyle}"
-                           Text="Preview" />
+                           Text="Preview" />-->
             </StackPanel>
 
             <AutoSuggestBox x:Name="SearchBox"

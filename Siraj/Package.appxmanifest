@@ -7,15 +7,15 @@
 
          IgnorableNamespaces="uap rescap">
 
-    <Identity Name="3cda70c9-d8ca-405d-a8c9-3120af13de6e"
-              Publisher="CN=Starlk"
+    <Identity Name="Starlk.Siraj"
+              Publisher="CN=48494EDC-932D-4C3F-9B64-E01DCB71F822"
               Version="1.0.0.0"/>
 
-    <mp:PhoneIdentity PhoneProductId="3cda70c9-d8ca-405d-a8c9-3120af13de6e"
+    <mp:PhoneIdentity PhoneProductId="235941a1-00a9-4fc0-8a27-194e87b70ccf"
                       PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
     <Properties>
-        <DisplayName>Siraj Preview</DisplayName>
+        <DisplayName>Siraj</DisplayName>
         <PublisherDisplayName>Starlk</PublisherDisplayName>
         <Logo>Assets\Visuals\StoreLogo.png</Logo>
     </Properties>
@@ -47,7 +47,7 @@
                 </desktop:Extension>
             </Extensions>
 
-            <uap:VisualElements DisplayName="Siraj Preview"
+            <uap:VisualElements DisplayName="Siraj"
                                 Description="An Islamic prayers application"
                                 BackgroundColor="transparent"
                                 Square150x150Logo="Assets\Visuals\Square150x150Logo.png"
@@ -56,7 +56,7 @@
                 <uap:DefaultTile Wide310x150Logo="Assets\Visuals\Wide310x150Logo.png"
                                  Square71x71Logo="Assets\Visuals\SmallTile.png"
                                  Square310x310Logo="Assets\Visuals\LargeTile.png" 
-								 ShortName="Siraj Preview"/>
+								 ShortName="Siraj"/>
 
                 <uap:SplashScreen Image="Assets\Visuals\SplashScreen.png"/>
 
