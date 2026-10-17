@@ -69,7 +69,7 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     {
         Log.Information("Initializing prayer times for {LocationName}", Location.Name);
 
-        IsNotified = settingsService.Notified.Any(location => location.Equals(Location));
+        IsNotified = Location.IsNotified;
 
         Prayers.Clear();
 
@@ -127,18 +127,8 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
 
     partial void OnIsNotifiedChanged(bool value)
     {
-        var notified = settingsService.Notified.Where(location => !location.Equals(Location));
-
-        if (value)
-        {
-            Log.Information("Enabled notifications for {LocationName}", Location.Name);
-            settingsService.Notified = [..notified, Location];
-        }
-        else
-        {
-            Log.Information("Disabled notifications for {LocationName}", Location.Name);
-            settingsService.Notified = [..notified];
-        }
+        Log.Information("Turned notifications {State} for {LocationName}", value ? "on" : "off", Location.Name);
+        Location.IsNotified = value;
     }
 }
 

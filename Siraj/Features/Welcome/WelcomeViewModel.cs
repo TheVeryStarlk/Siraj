@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using CommunityToolkit.Mvvm.Messaging;
 using Siraj.Features.Locations;
-using Siraj.Features.Settings;
 using Siraj.Features.Shell.Items;
 using Serilog;
 
@@ -14,18 +13,15 @@ internal sealed partial class WelcomeViewModel : HeaderViewModel
     private readonly DialogService dialogService;
     private readonly GeopositionService geopositionService;
     private readonly LocationService locationService;
-    private readonly SettingsService settingsService;
 
     public WelcomeViewModel(
         DialogService dialogService,
         GeopositionService geopositionService,
-        LocationService locationService,
-        SettingsService settingsService)
+        LocationService locationService)
     {
         this.dialogService = dialogService;
         this.geopositionService = geopositionService;
         this.locationService = locationService;
-        this.settingsService = settingsService;
 
         Title = "Welcome";
         Glyph = "🚀";
@@ -52,7 +48,7 @@ internal sealed partial class WelcomeViewModel : HeaderViewModel
 
             Log.Information("Location resolved to {LocationName}", location.Name);
 
-            settingsService.Notified = [..settingsService.Notified, location];
+            location.IsNotified = true;
 
             WeakReferenceMessenger.Default.Send(new AddMessage(location));
         }

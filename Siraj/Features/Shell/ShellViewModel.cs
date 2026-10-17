@@ -85,11 +85,6 @@ internal sealed partial class ShellViewModel : ObservableObject
 
         recipient.Header.Remove(message.Instance);
 
-        if (message.Instance is PrayersViewModel prayers)
-        {
-            prayers.IsNotified = false;
-        }
-
         if (recipient.Header.Count is 0)
         {
             recipient.Header.Add(recipient.welcomeViewModel);
