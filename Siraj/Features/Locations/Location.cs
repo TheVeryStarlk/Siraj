@@ -14,7 +14,6 @@ internal sealed class Location
     [JsonPropertyName("lon")]
     public required double Longitude { get; init; }
 
-    [JsonIgnore]
     public bool IsNotified { get; set; }
 
     public bool Equals(Location instance)
