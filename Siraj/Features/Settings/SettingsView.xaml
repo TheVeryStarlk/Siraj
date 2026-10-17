@@ -4,9 +4,16 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:settings="using:Siraj.Features.Settings"
+      xmlns:converters="using:Siraj.Features.Settings.Converters"
       x:Class="Siraj.Features.Settings.SettingsView"
       d:DataContext="{d:DesignInstance Type=settings:SettingsViewModel}"
       mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:ThemeToIndexConverter x:Key="ThemeToIndexConverter" />
+        <converters:VoiceToIndexConverter x:Key="VoiceToIndexConverter" />
+        <converters:MethodToIndexConverter x:Key="MethodToIndexConverter" />
+    </Page.Resources>
 
     <ScrollView>
         <Grid>
@@ -39,7 +46,7 @@
                         <FontIcon Glyph="&#xE790;" />
                     </controls:SettingsCard.HeaderIcon>
 
-                    <ComboBox SelectedIndex="{x:Bind ViewModel.ThemeIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.Theme, Converter={StaticResource ThemeToIndexConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ComboBoxItem Content="System" />
                         <ComboBoxItem Content="Dark" />
                         <ComboBoxItem Content="Light" />
@@ -53,7 +60,7 @@
                         <SymbolIcon Symbol="Volume" />
                     </controls:SettingsCard.HeaderIcon>
 
-                    <ComboBox SelectedIndex="{x:Bind ViewModel.ReciterIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.Voice, Converter={StaticResource VoiceToIndexConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ComboBoxItem Content="Mishary Al-Afasy" />
 
                         <ComboBoxItem Content="Madinah"
@@ -71,7 +78,7 @@
                         <FontIcon Glyph="&#xE823;" />
                     </controls:SettingsCard.HeaderIcon>
 
-                    <ComboBox SelectedIndex="{x:Bind ViewModel.CalculationIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.Method, Converter={StaticResource MethodToIndexConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ComboBoxItem Content="Makkah" />
                         <ComboBoxItem Content="Egypt" />
                         <ComboBoxItem Content="Karachi" />
@@ -117,7 +124,7 @@
 
                     <controls:SettingsExpander.HeaderIcon>
                         <BitmapIcon ShowAsMonochrome="False"
-                                    UriSource="/Assets/Visuals/StoreLogo.png" />
+                                    UriSource="ms-appx:///Assets/Visuals/StoreLogo.png" />
                     </controls:SettingsExpander.HeaderIcon>
 
                     <controls:SettingsExpander.Items>

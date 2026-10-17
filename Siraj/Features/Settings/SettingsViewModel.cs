@@ -10,13 +10,13 @@ namespace Siraj.Features.Settings;
 internal sealed partial class SettingsViewModel : FooterViewModel
 {
     [ObservableProperty]
-    public partial int ThemeIndex { get; set; }
+    public partial Theme Theme { get; set; }
 
     [ObservableProperty]
-    public partial int ReciterIndex { get; set; }
+    public partial Voice Voice { get; set; }
 
     [ObservableProperty]
-    public partial int CalculationIndex { get; set; }
+    public partial Method Method { get; set; }
 
     [ObservableProperty]
     public partial bool Startup { get; set; }
@@ -24,14 +24,14 @@ internal sealed partial class SettingsViewModel : FooterViewModel
     private readonly SettingsService settingsService;
     private readonly ThemeService themeService;
     private readonly StartupService startupService;
-    private readonly LogService logService;
+    private readonly LauncherService launcherService;
 
-    public SettingsViewModel(SettingsService settingsService, ThemeService themeService, StartupService startupService, LogService logService)
+    public SettingsViewModel(SettingsService settingsService, ThemeService themeService, StartupService startupService, LauncherService launcherService)
     {
         this.settingsService = settingsService;
         this.themeService = themeService;
         this.startupService = startupService;
-        this.logService = logService;
+        this.launcherService = launcherService;
 
         Glyph = "\uE713";
         Title = "Settings";
@@ -40,18 +40,16 @@ internal sealed partial class SettingsViewModel : FooterViewModel
     [RelayCommand]
     private void Initialize()
     {
-        // Write a converter?
-        ThemeIndex = (int) settingsService.Theme;
-        ReciterIndex = (int) settingsService.Voice;
-        CalculationIndex = (int) settingsService.Method;
-
+        Theme = settingsService.Theme;
+        Voice = settingsService.Voice;
+        Method = settingsService.Method;
         Startup = settingsService.Startup;
     }
 
     [RelayCommand]
     private async Task OpenLogFileAsync()
     {
-        await logService.OpenAsync();
+        await launcherService.OpenLogsAsync();
     }
 
     [RelayCommand]
@@ -63,20 +61,19 @@ internal sealed partial class SettingsViewModel : FooterViewModel
         }
     }
 
-    partial void OnThemeIndexChanged(int value)
+    partial void OnThemeChanged(Theme value)
     {
-        var theme = settingsService.Theme = (Theme) value;
-
-        themeService.Set(theme);
+        settingsService.Theme = value;
+        themeService.Set(value);
     }
 
-    partial void OnReciterIndexChanged(int value)
+    partial void OnVoiceChanged(Voice value)
     {
-        settingsService.Voice = (Voice) value;
+        settingsService.Voice = value;
     }
 
-    partial void OnCalculationIndexChanged(int value)
+    partial void OnMethodChanged(Method value)
     {
-        settingsService.Method = (Method) value;
+        settingsService.Method = value;
     }
 }

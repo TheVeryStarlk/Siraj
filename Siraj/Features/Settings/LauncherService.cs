@@ -6,9 +6,9 @@ using Windows.System;
 
 namespace Siraj.Features.Settings;
 
-internal sealed class LogService
+internal sealed class LauncherService
 {
-    public async Task OpenAsync()
+    public async Task OpenLogsAsync()
     {
         var roaming = await ApplicationData.Current.LocalCacheFolder.GetFolderAsync("Roaming");
         var siraj = await roaming.GetFolderAsync("Siraj");
