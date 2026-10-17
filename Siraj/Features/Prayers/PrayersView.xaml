@@ -19,8 +19,7 @@
 
         <Rectangle x:Name="GradientRectangle"
                    Margin="-36"
-                   Loaded="GradientRectangleLoaded"
-                   Opacity="0" />
+                   Loaded="GradientRectangleLoaded" />
 
         <ScrollView Grid.Row="0"
                     Grid.RowSpan="2">

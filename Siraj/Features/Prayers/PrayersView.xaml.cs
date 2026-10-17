@@ -1,7 +1,8 @@
+using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Siraj.Features.Prayers.Calculation;
 using Serilog;
@@ -76,23 +77,20 @@ internal sealed partial class PrayersView : Page
             }
         };
 
-        var animation = new DoubleAnimation
-        {
-            From = 0,
-            To = 1,
-            Duration = TimeSpan.FromSeconds(2.5),
-            EasingFunction = new QuinticEase
-            {
-                EasingMode = EasingMode.EaseOut
-            }
-        };
+        var visual = ElementCompositionPreview.GetElementVisual(GradientRectangle);
+        var compositor = visual.Compositor;
 
-        Storyboard.SetTarget(animation, GradientRectangle);
-        Storyboard.SetTargetProperty(animation, nameof(GradientRectangle.Opacity));
+        var easing = CompositionEasingFunction.CreatePowerEasingFunction(
+            compositor,
+            CompositionEasingFunctionMode.Out,
+            5);
 
-        var storyboard = new Storyboard();
+        var animation = compositor.CreateScalarKeyFrameAnimation();
 
-        storyboard.Children.Add(animation);
-        storyboard.Begin();
+        animation.InsertKeyFrame(0, 0);
+        animation.InsertKeyFrame(1, 1, easing);
+        animation.Duration = TimeSpan.FromSeconds(2.5);
+
+        visual.StartAnimation(nameof(Visual.Opacity), animation);
     }
 }
