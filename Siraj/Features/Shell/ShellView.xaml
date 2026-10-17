@@ -23,7 +23,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <notifyIcon:TaskbarIcon ContextMenuMode="SecondWindow"
+        <notifyIcon:TaskbarIcon x:Name="TrayIcon"
+                                ContextMenuMode="SecondWindow"
                                 IconSource="/Assets/Siraj/Siraj.ico"
                                 LeftClickCommand="{x:Bind viewModel.OpenCommand}"
                                 NoLeftClickDelay="True"
