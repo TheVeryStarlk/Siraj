@@ -117,6 +117,11 @@ internal sealed partial class ShellView : WindowEx
 
     private void SearchBoxOnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs eventArgs)
     {
+        if (viewModel.Suggestions.Count <= 0)
+        {
+            return;
+        }
+
         viewModel.SelectCommand.Execute((string?) eventArgs.ChosenSuggestion);
         sender.Text = string.Empty;
     }

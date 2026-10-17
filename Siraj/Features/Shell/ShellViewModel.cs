@@ -83,6 +83,11 @@ internal sealed partial class ShellViewModel : ObservableObject
     {
         Log.Information("Removing location {LocationName}", message.Instance.Title);
 
+        if (message.Instance is PrayersViewModel prayers)
+        {
+            prayers.IsNotified = false;
+        }
+
         recipient.Header.Remove(message.Instance);
 
         if (recipient.Header.Count is 0)
@@ -140,11 +145,6 @@ internal sealed partial class ShellViewModel : ObservableObject
     [RelayCommand]
     private void Select(string? instance)
     {
-        if (Suggestions.Count < 1)
-        {
-            return;
-        }
-
         instance ??= Suggestions[0];
 
         Suggestions.Clear();
