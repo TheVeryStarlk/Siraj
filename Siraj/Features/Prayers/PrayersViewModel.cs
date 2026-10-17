@@ -8,6 +8,7 @@ using Siraj.Features.Shell.Items;
 using System;
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Serilog;
@@ -112,8 +113,10 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
         {
             Log.Information("Prayer time reached for {Prayer} at {LocationName}", Upcoming, Location.Name);
 
+            Debug.Assert(Upcoming.HasValue);
+            
             notificationService.Show($"Now is the prayer time for {Upcoming}", Location.Name);
-            voiceService.Play(settingsService.Voice, Upcoming is PrayerKind.Fajr);
+            voiceService.Play(settingsService.Voice, Upcoming.Value);
         }
 
         Glyph = Prayer.ToEmoji(kind);

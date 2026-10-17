@@ -23,7 +23,7 @@ internal sealed class WindowService
 
     public void Exit()
     {
-        Log.Information("Closing the application");
+        Log.Information("Closing Siraj");
         Application.Current.Exit();
     }
 }

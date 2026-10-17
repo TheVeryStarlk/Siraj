@@ -2,6 +2,7 @@
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Serilog;
+using Siraj.Features.Prayers.Calculation;
 
 namespace Siraj.Features.Prayers.Voices;
 
@@ -12,19 +13,20 @@ internal sealed class VoiceService
         AudioCategory = MediaPlayerAudioCategory.Alerts
     };
 
-    public void Play(Voice voice, bool isFajr)
+    public void Play(Voice voice, PrayerKind prayer)
     {
         if (player.CurrentState is MediaPlayerState.Playing)
         {
-            Log.Debug("Skipped prayer audio because another audio item is playing");
             return;
         }
 
-        var file = $"{voice}{(isFajr ? "Fajr" : string.Empty)}";
+        var suffix = prayer is PrayerKind.Fajr ? nameof(PrayerKind.Fajr) : string.Empty;
+        var source = $"{voice}{suffix}.mp3";
 
-        player.Source = MediaSource.CreateFromUri(new Uri($"ms-appx:///Assets/Voices/{file}.mp3"));
+        player.Source = MediaSource.CreateFromUri(new Uri($"ms-appx:///Assets/Voices/{source}"));
 
         player.Play();
-        Log.Information("Playing prayer audio {AudioFile}", file);
+
+        Log.Information("Playing prayer audio {AudioFile}", suffix);
     }
 }

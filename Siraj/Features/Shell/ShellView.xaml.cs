@@ -37,14 +37,7 @@ internal sealed partial class ShellView : WindowEx
 
         ExtendsContentIntoTitleBar = true;
 
-        AppWindow.Closing += OnClosing;
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-    }
-
-    private void OnClosing(AppWindow sender, AppWindowClosingEventArgs eventArgs)
-    {
-        eventArgs.Cancel = true;
-        this.Hide();
     }
 
     private async void OnTick(DispatcherQueueTimer sender, object eventArgs)

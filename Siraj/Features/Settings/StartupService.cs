@@ -16,12 +16,16 @@ internal sealed class StartupService
         if (value)
         {
             var result = await task.RequestEnableAsync();
+
             Log.Debug("Startup task enable request returned {StartupState}", result);
+
             return result is StartupTaskState.Enabled;
         }
 
         task.Disable();
+
         Log.Debug("Disabled startup task");
+
         return true;
     }
 }

@@ -25,7 +25,9 @@ internal sealed partial class TasbihView : Page
     protected override void OnNavigatedTo(NavigationEventArgs eventArgs)
     {
         ViewModel = (TasbihViewModel) eventArgs.Parameter;
+
         Log.Debug("Opened Tasbih view");
+
         base.OnNavigatedTo(eventArgs);
     }
 }

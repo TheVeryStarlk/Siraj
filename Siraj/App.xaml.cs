@@ -14,15 +14,9 @@ public sealed partial class App : Application
     {
         InitializeComponent();
 
-        UnhandledException += (_, eventArgs) => Log.Fatal(eventArgs.Exception, "Siraj terminated unexpectedly"); ;
-
         AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) => Log.Fatal(eventArgs.ExceptionObject as Exception, "Siraj terminated unexpectedly");
-
-        TaskScheduler.UnobservedTaskException += (_, eventArgs) =>
-        {
-            Log.Fatal(eventArgs.Exception, "Siraj terminated unexpectedly");
-            eventArgs.SetObserved();
-        };
+        TaskScheduler.UnobservedTaskException += (_, eventArgs) => Log.Fatal(eventArgs.Exception, "Siraj terminated unexpectedly");
+        UnhandledException += (_, eventArgs) => Log.Fatal(eventArgs.Exception, "Siraj terminated unexpectedly");
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs eventArgs)

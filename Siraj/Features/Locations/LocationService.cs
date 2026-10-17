@@ -28,6 +28,7 @@ internal sealed class LocationService(IHttpClientFactory clientFactory)
             ArgumentNullException.ThrowIfNull(result);
 
             Log.Debug("Location search returned {LocationCount} results", result.Length);
+
             return result;
         }
         catch (Exception exception)
@@ -55,6 +56,7 @@ internal sealed class LocationService(IHttpClientFactory clientFactory)
             ArgumentNullException.ThrowIfNull(result);
 
             Log.Debug("Reverse geocoding resolved to {LocationName}", result.Name);
+
             return result;
         }
         catch (Exception exception)

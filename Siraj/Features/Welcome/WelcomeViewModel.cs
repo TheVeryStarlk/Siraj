@@ -34,20 +34,23 @@ internal sealed partial class WelcomeViewModel : HeaderViewModel
     [RelayCommand]
     private async Task LocateAsync()
     {
-        Log.Information("Starting current-location setup");
+        Log.Information("Starting location resolve");
 
         try
         {
             if (!await geopositionService.IsAllowedAsync())
             {
                 Log.Warning("Location permission was not granted");
+
                 await dialogService.ShowMessageAsync("Where are you?", "Make sure location access is enabled in your system");
+
                 return;
             }
 
             var geoposition = await geopositionService.GetAsync();
             var location = await locationService.ReverseAsync(geoposition.Latitude, geoposition.Longitude);
-            Log.Information("Current location resolved to {LocationName}", location.Name);
+
+            Log.Information("Location resolved to {LocationName}", location.Name);
 
             settingsService.Default = location;
 
@@ -55,7 +58,7 @@ internal sealed partial class WelcomeViewModel : HeaderViewModel
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "Current-location setup failed");
+            Log.Error(exception, "Location resolving failed");
             throw;
         }
     }

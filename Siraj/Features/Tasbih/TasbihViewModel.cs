@@ -27,10 +27,10 @@ internal sealed partial class TasbihViewModel : FooterViewModel
 
     public TasbihViewModel()
     {
-        Current = messages[index];
-
         Glyph = "\uE8EF";
         Title = "Tasbih";
+
+        Current = messages[index];
     }
 
     [RelayCommand]

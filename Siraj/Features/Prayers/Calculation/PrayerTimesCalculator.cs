@@ -9,13 +9,12 @@ internal sealed class PrayerTimesCalculator(PrayerTimesCalculatorOptions calcula
     public FrozenDictionary<PrayerKind, DateTimeOffset> Calculate(DateTimeOffset dateTimeOffset, double latitude, double longitude)
     {
         var context = new CalculationContext(
-            dateTimeOffset, 
-            latitude, 
+            dateTimeOffset,
+            latitude,
             longitude,
-            calculatorOptions.FajrAngle, 
-            calculatorOptions.IshaAngle, 
-            calculatorOptions.IshaOffset, 
-            calculatorOptions.MaghribOffset);
+            calculatorOptions.FajrAngle,
+            calculatorOptions.IshaAngle,
+            calculatorOptions.IshaOffset);
 
         return context.Calculate();
     }
@@ -27,8 +26,7 @@ file sealed class CalculationContext(
     double longitude,
     double fajrAngle,
     double ishaAngle,
-    TimeSpan? ishaOffset,
-    TimeSpan? maghribOffset)
+    TimeSpan? ishaOffset)
 {
     private readonly DateTimeOffset universal = new(dateTimeOffset.Year, dateTimeOffset.Month, dateTimeOffset.Day, 0, 0, 0, TimeSpan.Zero);
 
@@ -79,11 +77,11 @@ file sealed class CalculationContext(
 
         var obliquity = 23.439 - 0.00000036 * epoch;
 
-        var rightAscension = Math.Modulo(
-            Math.RadianToDegrees(Math.Atan2(
-                Math.Cos(Math.DegreesToRadian(obliquity)) * Math.Sin(Math.DegreesToRadian(eclipticLongitude)),
-                Math.Cos(Math.DegreesToRadian(eclipticLongitude))
-            )) / 15D, 24);
+        var degrees = Math.RadianToDegrees(Math.Atan2(
+            Math.Cos(Math.DegreesToRadian(obliquity)) * Math.Sin(Math.DegreesToRadian(eclipticLongitude)),
+            Math.Cos(Math.DegreesToRadian(eclipticLongitude))));
+
+        var rightAscension = Math.Modulo(degrees / 15D, 24);
 
         var declination = Math.RadianToDegrees(Math.Asin(Math.Sin(Math.DegreesToRadian(obliquity)) * Math.Sin(Math.DegreesToRadian(eclipticLongitude))));
         var equation = meanLongitude / 15D - rightAscension;

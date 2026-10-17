@@ -59,13 +59,16 @@ internal sealed class SettingsService
         }
 
         var result = JsonSerializer.Deserialize((string) value, typeInfo) ?? fallback;
+
         Log.Debug("Loaded setting {SettingName}", settingName);
+
         return result;
     }
 
     private void Set<T>(T value, JsonTypeInfo<T> typeInfo, string? name = null)
     {
         var settingName = name ?? typeInfo.Type.Name;
+
         storage[settingName] = JsonSerializer.Serialize(value, typeInfo);
         Log.Debug("Saved setting {SettingName}", settingName);
     }
