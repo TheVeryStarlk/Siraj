@@ -6,16 +6,14 @@ using Siraj.Features.Prayers.Voices;
 using Siraj.Features.Settings;
 using Siraj.Features.Shell.Items;
 using System;
-using System.Collections.Frozen;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Serilog;
 
 namespace Siraj.Features.Prayers;
 
-internal sealed partial class PrayersViewModel : HeaderViewModel
+internal sealed partial class PrayersViewModel : HeaderViewModel, IDisposable
 {
     public override bool IsDeletable => true;
 
@@ -23,8 +21,11 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
 
     public ObservableCollection<Prayer> Prayers { get; } = [];
 
-    [ObservableProperty]
-    public partial bool IsNotified { get; set; }
+    public bool IsNotified
+    {
+        get => Location.IsNotified;
+        set => SetProperty(Location.IsNotified, value, Location, static (location, notified) => location.IsNotified = notified);
+    }
 
     [ObservableProperty]
     public partial string? Description { get; set; }
@@ -35,8 +36,15 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     [ObservableProperty]
     public partial string? Remaining { get; set; }
 
+    private DateTime day;
+    private DateTimeOffset tomorrow;
+    private DateTimeOffset last;
+
+    private static readonly CultureInfo Hijri = new("ar-SA");
+
     private readonly SettingsService settingsService;
     private readonly NotificationService notificationService;
+    private readonly TimerService timerService;
     private readonly VoiceService voiceService;
     private readonly TimeProvider timeProvider;
 
@@ -50,11 +58,14 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     {
         this.settingsService = settingsService;
         this.notificationService = notificationService;
+        this.timerService = timerService;
         this.voiceService = voiceService;
         this.timeProvider = timeProvider;
 
         Location = location;
         Title = location.Name;
+
+        last = timeProvider.GetLocalNow();
 
         timerService.Start();
         timerService.Tick += Refresh;
@@ -65,70 +76,61 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     [RelayCommand]
     private void Initialize()
     {
-        Log.Information("Initializing prayer times for {LocationName}", Location.Name);
+        Calculate(timeProvider.GetLocalNow());
+        Refresh();
+    }
 
-        IsNotified = Location.IsNotified;
-
-        Prayers.Clear();
-
-        var now = timeProvider.GetLocalNow();
-
-        Description = now.ToString(CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern, new CultureInfo("ar-SA"));
+    private void Calculate(DateTimeOffset now)
+    {
+        Log.Information("Calculating prayer times for {LocationName}", Location.Name);
 
         var calculator = new PrayerTimesCalculator(settingsService.Method.ToOptions());
         var times = calculator.Calculate(now, Location.Latitude, Location.Longitude);
 
-        Log.Debug("Calculated {PrayerCount} prayer times for {LocationName}", times.Count, Location.Name);
+        Prayers.Clear();
 
-        foreach (var pair in times)
+        foreach (var kind in Enum.GetValues<PrayerKind>())
         {
-            Prayers.Add(new Prayer(pair.Key, pair.Value));
+            Prayers.Add(new Prayer(kind, times[kind]));
         }
 
-        // Force a refresh; Instead of waiting for a minute to refresh.
-        Refresh();
+        day = now.Date;
+        tomorrow = calculator.Calculate(now.AddDays(1), Location.Latitude, Location.Longitude)[PrayerKind.Fajr];
+        Description = now.ToString(CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern, Hijri);
     }
 
     private void Refresh()
     {
-        if (Prayers.Count < 1)
-        {
-            return;
-        }
-
-        var old = Upcoming;
         var now = timeProvider.GetLocalNow();
-        var upcoming = Prayers.FirstOrDefault(pair => pair.Time > now);
+        var reached = Prayers.LastOrDefault(prayer => prayer.Time > last && prayer.Time <= now && now - prayer.Time < TimeSpan.FromMinutes(1));
 
-        // Show how much is left for Fajr in the next day.
-        if (upcoming is null)
+        last = now;
+
+        if (now.Date != day && now > Prayers[^1].Time)
         {
-            upcoming = Prayers[0];
-            now = now.AddDays(1);
+            Calculate(now);
         }
 
-        Glyph = Prayer.ToEmoji(upcoming.Kind);
+        var upcoming = Prayers.FirstOrDefault(prayer => prayer.Time > now) ?? new Prayer(PrayerKind.Fajr, tomorrow);
+
+        Glyph = upcoming.Emoji;
         Upcoming = upcoming.Kind;
+        Remaining = (upcoming.Time - now).ToReadableString();
 
-        var remaining = upcoming.Time - now;
-
-        Remaining = remaining.ToReadableString();
-
-        if (!IsNotified || Upcoming == old)
+        if (reached is null || !IsNotified)
         {
             return;
         }
 
-        Log.Information("Prayer time reached for {Prayer} at {LocationName}", Upcoming, Location.Name);
+        Log.Information("Prayer time reached for {Prayer} at {LocationName}", reached.Kind, Location.Name);
 
-        notificationService.Show($"Now is the prayer time for {Upcoming}", Location.Name);
-        voiceService.Play(settingsService.Voice, Upcoming.Value);
+        notificationService.Show($"Now is the prayer time for {reached.Kind}", Location.Name);
+        voiceService.Play(settingsService.Voice, reached.Kind);
     }
 
-    partial void OnIsNotifiedChanged(bool value)
+    public void Dispose()
     {
-        Log.Information("Turned notifications {State} for {LocationName}", value ? "on" : "off", Location.Name);
-        Location.IsNotified = value;
+        timerService.Tick -= Refresh;
     }
 }
 
@@ -140,18 +142,13 @@ internal sealed class Prayer(PrayerKind kind, DateTimeOffset time)
 
     public string When => time.ToLocalTime().ToString("h:mm tt");
 
-    public string Emoji => ToEmoji(kind);
-
-    public static string ToEmoji(PrayerKind kind)
+    public string Emoji => kind switch
     {
-        return kind switch
-        {
-            PrayerKind.Fajr => "🌅",
-            PrayerKind.Dhuhr => "🌄",
-            PrayerKind.Asr => "🌇",
-            PrayerKind.Maghrib => "🌆",
-            PrayerKind.Isha => "🌌",
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    }
+        PrayerKind.Fajr => "🌅",
+        PrayerKind.Dhuhr => "🌄",
+        PrayerKind.Asr => "🌇",
+        PrayerKind.Maghrib => "🌆",
+        PrayerKind.Isha => "🌌",
+        _ => throw new ArgumentOutOfRangeException()
+    };
 }

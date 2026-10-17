@@ -85,7 +85,7 @@ internal sealed partial class ShellViewModel : ObservableObject
 
         if (message.Instance is PrayersViewModel prayers)
         {
-            prayers.IsNotified = false;
+            prayers.Dispose();
         }
 
         recipient.Header.Remove(message.Instance);
