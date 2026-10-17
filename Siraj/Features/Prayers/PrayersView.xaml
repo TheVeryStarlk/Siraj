@@ -163,7 +163,7 @@
                                         <TextBlock HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                   Text="{x:Bind Time}" />
+                                                   Text="{x:Bind When}" />
                                     </Grid>
                                 </DataTemplate>
                             </Grid.Resources>

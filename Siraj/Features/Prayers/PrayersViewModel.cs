@@ -35,8 +35,6 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     [ObservableProperty]
     public partial string? Remaining { get; set; }
 
-    private FrozenDictionary<PrayerKind, DateTimeOffset>? times;
-
     private readonly SettingsService settingsService;
     private readonly NotificationService notificationService;
     private readonly VoiceService voiceService;
@@ -78,14 +76,13 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
         Description = now.ToString(CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern, new CultureInfo("ar-SA"));
 
         var calculator = new PrayerTimesCalculator(settingsService.Method.ToOptions());
-
-        times = calculator.Calculate(now, Location.Latitude, Location.Longitude);
+        var times = calculator.Calculate(now, Location.Latitude, Location.Longitude);
 
         Log.Debug("Calculated {PrayerCount} prayer times for {LocationName}", times.Count, Location.Name);
 
         foreach (var pair in times)
         {
-            Prayers.Add(new Prayer(pair.Key, pair.Value.ToLocalTime().ToString("h:mm tt")));
+            Prayers.Add(new Prayer(pair.Key, pair.Value));
         }
 
         // Force a refresh; Instead of waiting for a minute to refresh.
@@ -94,35 +91,38 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
 
     private void Refresh()
     {
-        if (times is null)
+        if (Prayers.Count < 1)
         {
             return;
         }
 
+        var old = Upcoming;
         var now = timeProvider.GetLocalNow();
-
-        times.FirstOrDefault(pair => pair.Value > now).Deconstruct(out var kind, out var time);
+        var upcoming = Prayers.FirstOrDefault(pair => pair.Time > now);
 
         // Show how much is left for Fajr in the next day.
-        if (time == default)
+        if (upcoming is null)
         {
-            time = times[PrayerKind.Fajr].AddDays(1);
+            upcoming = Prayers[0];
+            now = now.AddDays(1);
         }
 
-        if (IsNotified && Upcoming != kind && !string.IsNullOrWhiteSpace(Remaining))
-        {
-            Log.Information("Prayer time reached for {Prayer} at {LocationName}", Upcoming, Location.Name);
+        Glyph = Prayer.ToEmoji(upcoming.Kind);
+        Upcoming = upcoming.Kind;
 
-            Debug.Assert(Upcoming.HasValue);
-            
-            notificationService.Show($"Now is the prayer time for {Upcoming}", Location.Name);
-            voiceService.Play(settingsService.Voice, Upcoming.Value);
+        var remaining = upcoming.Time - now;
+
+        Remaining = remaining.ToReadableString();
+
+        if (!IsNotified || Upcoming == old)
+        {
+            return;
         }
 
-        Glyph = Prayer.ToEmoji(kind);
+        Log.Information("Prayer time reached for {Prayer} at {LocationName}", Upcoming, Location.Name);
 
-        Upcoming = kind;
-        Remaining = (time - now).ToReadableString();
+        notificationService.Show($"Now is the prayer time for {Upcoming}", Location.Name);
+        voiceService.Play(settingsService.Voice, Upcoming.Value);
     }
 
     partial void OnIsNotifiedChanged(bool value)
@@ -132,11 +132,13 @@ internal sealed partial class PrayersViewModel : HeaderViewModel
     }
 }
 
-internal sealed class Prayer(PrayerKind kind, string time)
+internal sealed class Prayer(PrayerKind kind, DateTimeOffset time)
 {
     public PrayerKind Kind => kind;
 
-    public string Time => time;
+    public DateTimeOffset Time => time;
+
+    public string When => time.ToLocalTime().ToString("h:mm tt");
 
     public string Emoji => ToEmoji(kind);
 
