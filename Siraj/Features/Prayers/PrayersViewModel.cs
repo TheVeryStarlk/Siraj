@@ -101,7 +101,7 @@ internal sealed partial class PrayersViewModel : HeaderViewModel, IDisposable
 
     private void Refresh()
     {
-        var now = timeProvider.GetLocalNow();
+        var now = timeProvider.GetLocalNow().TruncateToMinute();
         var reached = Prayers.LastOrDefault(prayer => prayer.Time > last && prayer.Time <= now && now - prayer.Time < TimeSpan.FromMinutes(1));
 
         last = now;
@@ -138,9 +138,9 @@ internal sealed class Prayer(PrayerKind kind, DateTimeOffset time)
 {
     public PrayerKind Kind => kind;
 
-    public DateTimeOffset Time => time;
+    public DateTimeOffset Time { get; } = time.TruncateToMinute();
 
-    public string When => time.ToLocalTime().ToString("h:mm tt");
+    public string When => Time.ToLocalTime().ToString("h:mm tt");
 
     public string Emoji => kind switch
     {
