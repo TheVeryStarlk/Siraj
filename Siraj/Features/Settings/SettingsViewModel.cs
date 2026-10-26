@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Threading.Tasks;
 using Siraj.Features.Prayers.Calculation;
 using Siraj.Features.Shell.Items;
@@ -74,6 +75,12 @@ internal sealed partial class SettingsViewModel : FooterViewModel
 
     partial void OnMethodChanged(Method value)
     {
+        if (value == settingsService.Method)
+        {
+            return;
+        }
+
         settingsService.Method = value;
+        WeakReferenceMessenger.Default.Send(new MethodChangedMessage());
     }
 }
