@@ -12,4 +12,6 @@ namespace Siraj;
 [JsonSerializable(typeof(Voice))]
 [JsonSerializable(typeof(Method))]
 [JsonSerializable(typeof(bool))]
+[JsonSerializable(typeof(int))]
+[JsonSerializable(typeof(int[]))]
 internal sealed partial class SirajSerializerContext : JsonSerializerContext;

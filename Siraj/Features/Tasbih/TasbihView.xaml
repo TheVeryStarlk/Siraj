@@ -6,55 +6,119 @@
       xmlns:tasbih="using:Siraj.Features.Tasbih"
       x:Class="Siraj.Features.Tasbih.TasbihView"
       d:DataContext="{d:DesignInstance Type=tasbih:TasbihViewModel}"
+      Loaded="PageLoaded"
       mc:Ignorable="d">
 
-    <Grid RowSpacing="36">
+    <Grid x:Name="RootGrid"
+          RowSpacing="24">
+
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <controls:RadialGauge Width="280"
-                                  IsEnabled="True"
-                                  IsInteractive="False"
-                                  MaxAngle="145"
-                                  Maximum="100"
-                                  MinAngle="-145"
-                                  Minimum="0"
-                                  NeedleWidth="0"
-                                  ScaleWidth="10"
-                                  TickLength="0"
-                                  Value="{x:Bind ViewModel.Value, Mode=OneWay}" />
-
-            <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
+            <StackPanel HorizontalAlignment="Left"
                         Spacing="4">
 
-                <Button Width="48"
-                        Height="48"
-                        Command="{x:Bind ViewModel.AddCommand}"
-                        Style="{StaticResource AccentButtonStyle}">
+                <TextBlock Style="{StaticResource TitleTextBlockStyle}"
+                           Text="{x:Bind ViewModel.Title}" />
 
-                    <SymbolIcon Symbol="Add" />
-                </Button>
-
-                <Button Width="48"
-                        Height="48"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Command="{x:Bind ViewModel.ResetCommand}"
-                        Style="{StaticResource SubtleButtonStyle}">
-
-                    <SymbolIcon Symbol="Refresh" />
-                </Button>
+                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Text="Click the counter or press Space to count" />
             </StackPanel>
+
+            <Button Width="36"
+                    Height="36"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    AllowFocusOnInteraction="False"
+                    AutomationProperties.Name="Reset count"
+                    ToolTipService.ToolTip="Reset count">
+
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="R"
+                                         Modifiers="Control"
+                                         ScopeOwner="{x:Bind RootGrid}" />
+                </Button.KeyboardAccelerators>
+
+                <Button.Flyout>
+                    <Flyout x:Name="ResetFlyout">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}"
+                                       Text="Reset this dhikr's count?" />
+
+                            <Button HorizontalAlignment="Right"
+                                    Click="ResetClicked"
+                                    Command="{x:Bind ViewModel.ResetCommand}"
+                                    Content="Reset"
+                                    Style="{StaticResource AccentButtonStyle}" />
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+
+                <FontIcon FontSize="16"
+                          Glyph="&#xE72C;" />
+            </Button>
         </Grid>
 
-        <Border Grid.Row="1"
+        <Viewbox Grid.Row="1"
+                 StretchDirection="DownOnly">
+
+            <Button x:Name="CounterButton"
+                    Width="280"
+                    Height="280"
+                    Padding="0"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    AutomationProperties.Name="Count"
+                    Command="{x:Bind ViewModel.AddCommand}"
+                    CornerRadius="140"
+                    Style="{StaticResource SubtleButtonStyle}">
+
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Space"
+                                         ScopeOwner="{x:Bind RootGrid}" />
+
+                    <KeyboardAccelerator Key="Enter"
+                                         ScopeOwner="{x:Bind RootGrid}" />
+                </Button.KeyboardAccelerators>
+
+                <Grid>
+                    <controls:RadialGauge IsEnabled="True"
+                                          IsHitTestVisible="False"
+                                          IsInteractive="False"
+                                          MaxAngle="145"
+                                          Maximum="33"
+                                          MinAngle="-145"
+                                          Minimum="0"
+                                          NeedleWidth="0"
+                                          ScaleWidth="10"
+                                          TickLength="0"
+                                          Value="{x:Bind ViewModel.Value, Mode=OneWay}" />
+
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+
+                        <TextBlock HorizontalAlignment="Center"
+                                   AutomationProperties.LiveSetting="Polite"
+                                   Style="{StaticResource DisplayTextBlockStyle}"
+                                   Text="{x:Bind ViewModel.Count, Mode=OneWay}" />
+
+                        <TextBlock HorizontalAlignment="Center"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Text="{x:Bind ViewModel.Rounds, Mode=OneWay}" />
+                    </StackPanel>
+                </Grid>
+            </Button>
+        </Viewbox>
+
+        <Border Grid.Row="2"
                 Style="{StaticResource BorderStyle}">
 
-            <Grid>
+            <Grid ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -64,31 +128,54 @@
                 <Button Grid.Column="0"
                         Width="36"
                         Height="36"
-                        Margin="16"
                         Padding="0"
-                        Command="{x:Bind ViewModel.LeftCommand}">
+                        AllowFocusOnInteraction="False"
+                        AutomationProperties.Name="Previous dhikr"
+                        Command="{x:Bind ViewModel.LeftCommand}"
+                        ToolTipService.ToolTip="Previous dhikr">
 
-                    <FontIcon FontFamily="Segoe MDL2 Assets"
-                              FontSize="16"
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Left"
+                                             ScopeOwner="{x:Bind RootGrid}" />
+                    </Button.KeyboardAccelerators>
+
+                    <FontIcon FontSize="16"
                               Glyph="&#xE76B;" />
                 </Button>
 
-                <TextBlock Grid.Column="1"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Style="{StaticResource TitleTextBlockStyle}"
-                           Text="{x:Bind ViewModel.Current, Mode=OneWay}"
-                           TextAlignment="Center" />
+                <StackPanel Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Spacing="8">
+
+                    <TextBlock HorizontalAlignment="Center"
+                               FlowDirection="RightToLeft"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               Text="{x:Bind ViewModel.Current, Mode=OneWay}"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap" />
+
+                    <PipsPager HorizontalAlignment="Center"
+                               AllowFocusOnInteraction="False"
+                               MaxVisiblePips="{x:Bind ViewModel.Total}"
+                               NumberOfPages="{x:Bind ViewModel.Total}"
+                               SelectedPageIndex="{x:Bind ViewModel.Index, Mode=TwoWay}" />
+                </StackPanel>
 
                 <Button Grid.Column="2"
                         Width="36"
                         Height="36"
-                        Margin="16"
                         Padding="0"
-                        Command="{x:Bind ViewModel.RightCommand}">
+                        AllowFocusOnInteraction="False"
+                        AutomationProperties.Name="Next dhikr"
+                        Command="{x:Bind ViewModel.RightCommand}"
+                        ToolTipService.ToolTip="Next dhikr">
 
-                    <FontIcon FontFamily="Segoe MDL2 Assets"
-                              FontSize="16"
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Right"
+                                             ScopeOwner="{x:Bind RootGrid}" />
+                    </Button.KeyboardAccelerators>
+
+                    <FontIcon FontSize="16"
                               Glyph="&#xE76C;" />
                 </Button>
             </Grid>

@@ -41,6 +41,18 @@ internal sealed class SettingsService
         set => Set(value, SirajSerializerContext.Default.Boolean, nameof(Startup));
     }
 
+    public int[] Counts
+    {
+        get => Get([], SirajSerializerContext.Default.Int32Array, nameof(Counts));
+        set => Set(value, SirajSerializerContext.Default.Int32Array, nameof(Counts));
+    }
+
+    public int Dhikr
+    {
+        get => Get(0, SirajSerializerContext.Default.Int32, nameof(Dhikr));
+        set => Set(value, SirajSerializerContext.Default.Int32, nameof(Dhikr));
+    }
+
     private readonly IPropertySet storage = ApplicationData.Current.LocalSettings.Values;
 
     private T Get<T>(T fallback, JsonTypeInfo<T> typeInfo, string? name = null)
