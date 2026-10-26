@@ -32,7 +32,7 @@ internal sealed partial class PrayersView : Page
 
         Log.Debug("Opened prayers view for {LocationName}", ViewModel.Location.Name);
 
-        ViewModel.InitializeCommand.Execute(null);
+        ViewModel.RefreshCommand.Execute(null);
 
         base.OnNavigatedTo(eventArgs);
     }

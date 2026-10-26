@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Siraj.Features.Locations;
 using Siraj.Features.Prayers.Calculation;
 using Siraj.Features.Prayers.Voices;
@@ -65,15 +66,16 @@ internal sealed partial class PrayersViewModel : HeaderViewModel, IDisposable
         Location = location;
         Title = location.Name;
 
-        last = timeProvider.GetLocalNow();
+        last = timeProvider.GetLocalNow().TruncateToMinute();
 
         timerService.Start();
         timerService.Tick += Refresh;
 
+        WeakReferenceMessenger.Default.Register<PrayersViewModel, MethodChangedMessage>(this, static (recipient, _) => recipient.Initialize());
+
         Initialize();
     }
 
-    [RelayCommand]
     private void Initialize()
     {
         Calculate(timeProvider.GetLocalNow());
@@ -99,10 +101,11 @@ internal sealed partial class PrayersViewModel : HeaderViewModel, IDisposable
         Description = now.ToString(CultureInfo.CurrentUICulture.DateTimeFormat.ShortDatePattern, Hijri);
     }
 
+    [RelayCommand]
     private void Refresh()
     {
-        var now = timeProvider.GetLocalNow();
-        var reached = Prayers.LastOrDefault(prayer => prayer.Time > last && prayer.Time <= now && now - prayer.Time < TimeSpan.FromMinutes(1));
+        var now = timeProvider.GetLocalNow().TruncateToMinute();
+        var reached = now != last ? Prayers.LastOrDefault(prayer => prayer.Time == now) : null;
 
         last = now;
 
@@ -124,13 +127,14 @@ internal sealed partial class PrayersViewModel : HeaderViewModel, IDisposable
 
         Log.Information("Prayer time reached for {Prayer} at {LocationName}", reached.Kind, Location.Name);
 
-        notificationService.Show($"Now is the prayer time for {reached.Kind}", Location.Name);
+        notificationService.Show($"Now is the prayer time for {reached.Kind}", Location.Name, upcoming.Time);
         voiceService.Play(settingsService.Voice, reached.Kind);
     }
 
     public void Dispose()
     {
         timerService.Tick -= Refresh;
+        WeakReferenceMessenger.Default.UnregisterAll(this);
     }
 }
 
@@ -138,9 +142,9 @@ internal sealed class Prayer(PrayerKind kind, DateTimeOffset time)
 {
     public PrayerKind Kind => kind;
 
-    public DateTimeOffset Time => time;
+    public DateTimeOffset Time { get; } = time.TruncateToMinute();
 
-    public string When => time.ToLocalTime().ToString("h:mm tt");
+    public string When => Time.ToLocalTime().ToString("h:mm tt");
 
     public string Emoji => kind switch
     {
